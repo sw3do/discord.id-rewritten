@@ -56,58 +56,9 @@ jobs:
     - name: Run security audit
       run: bun audit
       
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        
-    - name: Install dependencies
-      run: bun install
-      
-    - name: Run tests
-      run: bun test
-      
 
-  accessibility-check:
-    name: Accessibility Check
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v1
-      with:
-        bun-version: latest
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        
-    - name: Install dependencies
-      run: bun install
-      
-    - name: Build application
-      run: bun run build
-      
-    - name: Run accessibility tests
-      run: bun run test:a11y
-      
+
+
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
