@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discord Server
+    url: https://discord.gg/Vf6HxqXRh3
+    about: Join our Discord server for real-time support and community discussions
+  - name: Project Website
+    url: https://github.com/sw3do/discord.id-rewritten
+    about: Visit the main project repository
+  - name: Discord Badges Reference
+    url: https://github.com/mezotv/discord-badges
+    about: Reference for Discord badges implementation
+  - name: Lanyard API
+    url: https://github.com/Phineas/lanyard
+    about: Discord activity status API documentation
