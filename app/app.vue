@@ -143,16 +143,22 @@
                   {{ user.clan.tag }}
                 </span>
               </h2>
-              <p class="text-[#b5bac1] text-xs sm:text-sm break-all">
-                {{ user.username }}
-                <span v-if="user.discriminator && user.discriminator !== '0'">#{{ user.discriminator }}</span>
+              <p class="text-[#b5bac1] text-xs sm:text-sm break-all flex items-center gap-2 flex-wrap">
+                <span>
+                  {{ user.username }}
+                  <span v-if="user.discriminator && user.discriminator !== '0'">#{{ user.discriminator }}</span>
+                </span>
+                <span v-if="user.bot"
+                  class="inline-flex items-center bg-[#5865f2] text-white text-xs px-1.5 py-0.5 rounded font-medium">
+                  BOT
+                </span>
               </p>
             </div>
 
             <!-- Badges -->
-            <div v-if="getUserBadges(user.public_flags).length > 0" class="mb-4">
+            <div v-if="getUserBadges(user.public_flags, user.bot).length > 0" class="mb-4">
               <div class="flex flex-wrap gap-1 sm:gap-2">
-                <img v-for="badge in getUserBadges(user.public_flags)" :key="badge.name" :src="badge.icon"
+                <img v-for="badge in getUserBadges(user.public_flags, user.bot)" :key="badge.name" :src="badge.icon"
                   :alt="badge.name" :title="badge.name" class="w-4 h-4 sm:w-5 sm:h-5">
               </div>
             </div>
@@ -278,8 +284,8 @@
                     (activity) => activity.name !== 'Spotify' && activity.type !== 4,
                   )" :key="activity.id || activity.name" class="flex items-start gap-3">
                     <img v-if="activity.assets && activity.assets.large_image" :src="activity.assets.large_image.startsWith('mp:')
-                        ? `https://media.discordapp.net/${activity.assets.large_image.slice(3)}`
-                        : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`
+                      ? `https://media.discordapp.net/${activity.assets.large_image.slice(3)}`
+                      : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`
                       " :alt="activity.name" class="w-10 h-10 sm:w-12 sm:h-12 rounded flex-shrink-0">
                     <div class="min-w-0 flex-1">
                       <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-words">
@@ -545,7 +551,7 @@ const getNameplateUrl = (asset) => {
   return `https://cdn.discordapp.com/assets/collectibles/${asset}asset.webm`
 }
 
-const getUserBadges = (flags) => {
+const getUserBadges = (flags, isBot = false) => {
   const badges = []
   const flagMap = {
     1: { name: 'Discord Staff', icon: '/images/discordstaff.svg' },
@@ -567,6 +573,7 @@ const getUserBadges = (flags) => {
       name: 'Discord Bug Hunter (Tier 2)',
       icon: '/images/discordbughunter2.svg',
     },
+
     131072: {
       name: 'Early Verified Bot Developer',
       icon: '/images/discordbotdev.svg',
@@ -583,6 +590,15 @@ const getUserBadges = (flags) => {
   for (const [flag, badge] of Object.entries(flagMap)) {
     if (flags & Number.parseInt(flag)) {
       badges.push(badge)
+    }
+  }
+
+  if (isBot) {
+    const isVerifiedBot = flags & 65536
+    if (isVerifiedBot) {
+      badges.unshift({ name: 'Verified Bot', icon: '/images/special/VerifiedBot.svg' })
+    } else {
+      badges.unshift({ name: 'Bot', icon: '/images/special/Bot.svg' })
     }
   }
 
