@@ -132,7 +132,7 @@
                 class="text-[#f2f3f5] font-semibold text-base sm:text-lg leading-tight flex flex-wrap items-center gap-2">
                 <span class="break-all">{{
                   user.display_name || user.global_name || user.username
-                  }}</span>
+                }}</span>
                 <span v-if="user.clan"
                   class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-1 rounded font-medium">
                   <img v-if="user.clan.badge" :src="getClanBadgeUrl(
@@ -190,7 +190,7 @@
                   }" />
                   <span class="text-[#b5bac1] text-xs sm:text-sm">{{
                     getStatusText(user.lanyard.discord_status)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div v-if="
                   user.lanyard.active_on_discord_desktop
@@ -381,7 +381,7 @@
                       <div class="w-3 h-3 rounded-full border border-[#3f4147] flex-shrink-0"
                         :style="{ backgroundColor: user.banner_color }" />
                       <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.banner_color.toUpperCase()
-                        }}</span>
+                      }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-start gap-2">
@@ -396,7 +396,7 @@
                     <span class="text-[#b5bac1] flex-shrink-0">Account Created:</span>
                     <span class="text-[#f2f3f5] text-xs text-right break-all">{{
                       formatDate(getAccountCreationDate(user.id))
-                      }}</span>
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -424,7 +424,7 @@
                         class="text-white font-medium text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 drop-shadow-lg">
                         <span class="break-all">{{
                           user.display_name || user.global_name || user.username
-                          }}</span>
+                        }}</span>
                         <span v-if="user.clan"
                           class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-0.5 rounded font-medium">
                           <img v-if="user.clan.badge" :src="getClanBadgeUrl(
@@ -573,7 +573,7 @@ const getUserBadges = (flags, isBot = false) => {
       name: 'Discord Bug Hunter (Tier 2)',
       icon: '/images/discordbughunter2.svg',
     },
-
+    65536: { name: 'Verified Bot', icon: '/images/special/VerifiedBot.svg' },
     131072: {
       name: 'Early Verified Bot Developer',
       icon: '/images/discordbotdev.svg',
@@ -582,7 +582,7 @@ const getUserBadges = (flags, isBot = false) => {
       name: 'Moderator Programs Alumni',
       icon: '/images/discordmod.svg',
     },
-    524288: { name: 'Supports Commands', icon: '/images/supportscommands.svg' },
+    524288: { name: 'Bot HTTP Interactions', icon: '/images/supportscommands.svg' },
     4194304: { name: 'Active Developer', icon: '/images/activedeveloper.svg' },
     16777216: { name: 'Uses Automod', icon: '/images/automod.svg' },
   }
@@ -595,9 +595,7 @@ const getUserBadges = (flags, isBot = false) => {
 
   if (isBot) {
     const isVerifiedBot = flags & 65536
-    if (isVerifiedBot) {
-      badges.unshift({ name: 'Verified Bot', icon: '/images/special/VerifiedBot.svg' })
-    } else {
+    if (!isVerifiedBot) {
       badges.unshift({ name: 'Bot', icon: '/images/special/Bot.svg' })
     }
   }

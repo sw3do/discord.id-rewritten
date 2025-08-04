@@ -112,11 +112,12 @@ Fetches comprehensive Discord user information including badges, profile data, a
 
 This application displays all Discord badges including:
 
-- **Staff Badges:** Discord Staff, Moderator Alumni
-- **Program Badges:** Partner, Verified Bot Developer, Active Developer
-- **Community Badges:** HypeSquad Events, Bug Hunter (Tier 1 & 2)
+- **Staff Badges:** Discord Staff, Moderator Programs Alumni
+- **Program Badges:** Partner, Verified Bot Developer, Early Verified Bot Developer, Active Developer
+- **Community Badges:** HypeSquad Events, HypeSquad Houses (Bravery, Brilliance, Balance), Bug Hunter (Tier 1 & 2)
 - **Subscription Badges:** Nitro (all tiers), Early Supporter
-- **Server Badges:** Server Boosting (all levels)
+- **Bot Badges:** Verified Bot, Bot HTTP Interactions, Uses Automod
+- **Team Badges:** Team User
 - **Special Badges:** Quest completion, Orbs Apprentice, and more
 
 Badge data and images are sourced from the comprehensive [discord-badges](https://github.com/mezotv/discord-badges) repository.
