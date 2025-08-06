@@ -79,14 +79,7 @@
           </div>
 
           <div class="flex justify-center mb-6">
-            <vue-hcaptcha
-              ref="hcaptcha"
-              :sitekey="hcaptchaSiteKey"
-              :theme="'dark'"
-              @verify="onCaptchaVerify"
-              @error="onCaptchaError"
-              @expired="onCaptchaExpired"
-            />
+            <div id="hcaptcha-container" ref="hcaptchaContainer"></div>
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3">
@@ -486,7 +479,7 @@
 </template>
 
 <script setup>
-import VueHcaptcha from '@hcaptcha/vue-hcaptcha'
+
 
 const userId = ref('')
 const user = ref(null)
@@ -496,7 +489,8 @@ const showCaptcha = ref(false)
 const captchaLoading = ref(false)
 const captchaToken = ref('')
 const captchaError = ref('')
-const hcaptcha = ref(null)
+const hcaptchaContainer = ref(null)
+const hcaptchaWidgetId = ref(null)
 
 const hcaptchaSiteKey = process.env.NUXT_PUBLIC_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001'
 
@@ -552,12 +546,45 @@ const onCaptchaExpired = () => {
   captchaError.value = 'Captcha expired. Please verify again.'
 }
 
+const loadHcaptcha = () => {
+  return new Promise((resolve) => {
+    if (window.hcaptcha) {
+      resolve()
+      return
+    }
+    
+    const script = document.createElement('script')
+    script.src = 'https://js.hcaptcha.com/1/api.js'
+    script.async = true
+    script.defer = true
+    script.onload = () => resolve()
+    document.head.appendChild(script)
+  })
+}
+
+const renderHcaptcha = async () => {
+  await loadHcaptcha()
+  
+  if (hcaptchaWidgetId.value !== null) {
+    window.hcaptcha.reset(hcaptchaWidgetId.value)
+    return
+  }
+  
+  hcaptchaWidgetId.value = window.hcaptcha.render(hcaptchaContainer.value, {
+    sitekey: hcaptchaSiteKey,
+    theme: 'dark',
+    callback: onCaptchaVerify,
+    'error-callback': onCaptchaError,
+    'expired-callback': onCaptchaExpired
+  })
+}
+
 const closeCaptchaModal = () => {
   showCaptcha.value = false
   captchaToken.value = ''
   captchaError.value = ''
-  if (hcaptcha.value) {
-    hcaptcha.value.reset()
+  if (hcaptchaWidgetId.value !== null && window.hcaptcha) {
+    window.hcaptcha.reset(hcaptchaWidgetId.value)
   }
 }
 
@@ -620,7 +647,7 @@ const performSearch = async () => {
     } else if (err.status === 401 || err.statusCode === 401) {
       error.value = 'Invalid API key. Please check your bot token.'
     } else if (err.status === 429 || err.statusCode === 429) {
-      if (err.data?.requiresCaptcha) {
+      if (err.statusMessage?.includes('Captcha verification required')) {
         showCaptcha.value = true
         error.value = ''
       } else {
@@ -637,12 +664,19 @@ const performSearch = async () => {
   }
 }
 
+watch(showCaptcha, async (newValue) => {
+  if (newValue) {
+    await nextTick()
+    await renderHcaptcha()
+  }
+})
+
 onMounted(() => {
   updateSecurityStatus()
   
   setInterval(() => {
     updateSecurityStatus()
-  }, 5000)
+  }, 1000)
 })
 
 const getAvatarUrl = (userId, avatarHash) => {
