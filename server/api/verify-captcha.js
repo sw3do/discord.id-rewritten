@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  if (getMethod(event) !== 'POST') {
+  if (event.method !== 'POST') {
     throw createError({
       statusCode: 405,
       statusMessage: 'Method not allowed'
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
           })
         )
         
-        await redisClient.disconnect()
+        await redisClient.destroy()
       } catch (redisError) {
         console.error('Redis error:', redisError)
       }

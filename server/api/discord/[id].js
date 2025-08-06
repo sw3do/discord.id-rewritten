@@ -101,7 +101,7 @@ async function checkIfCaptchaRequired(event, ip, userAgent) {
         await redisClient.connect()
         
         const verified = await redisClient.get(`captcha:${captchaToken}`)
-        await redisClient.disconnect()
+        await redisClient.destroy()
         
         if (verified) {
           const data = JSON.parse(verified)
@@ -122,7 +122,7 @@ async function checkIfCaptchaRequired(event, ip, userAgent) {
       await redisClient.connect()
       
       const requestCount = await redisClient.get(`requests:${ip}:${Math.floor(Date.now() / 300000)}`)
-      await redisClient.disconnect()
+      await redisClient.destroy();
       
       if (parseInt(requestCount || '0') > 10) {
         return true
@@ -168,7 +168,7 @@ async function logRequest(ip, userAgent, userId) {
     }))
     
     await redisClient.lTrim(`logs:requests`, 0, 999)
-    await redisClient.disconnect()
+    await redisClient.destroy()
   } catch (error) {
     console.error('Request logging error:', error)
   }
@@ -190,7 +190,7 @@ async function logSuccessfulRequest(ip, userId) {
     }))
     
     await redisClient.lTrim(`logs:success`, 0, 999)
-    await redisClient.disconnect()
+    await redisClient.destroy()
   } catch (error) {
     console.error('Success logging error:', error)
   }
@@ -213,7 +213,7 @@ async function logFailedRequest(ip, userId, statusCode) {
     }))
     
     await redisClient.lTrim(`logs:failed`, 0, 999)
-    await redisClient.disconnect()
+    await redisClient.destroy();
   } catch (error) {
     console.error('Failed request logging error:', error)
   }
