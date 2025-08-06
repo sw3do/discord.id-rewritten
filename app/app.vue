@@ -8,6 +8,12 @@
         <p class="text-[#b5bac1] text-base sm:text-lg">
           View Discord user information
         </p>
+        <div v-if="securityStatus.isBlocked" class="mt-4 p-4 bg-red-600 rounded-lg">
+          <p class="text-white text-sm">
+            🛡️ Your IP has been temporarily blocked due to suspicious activity.
+            Please wait {{ Math.ceil(securityStatus.blockTimeRemaining / 60000) }} minutes.
+          </p>
+        </div>
       </div>
 
       <div class="max-w-md mx-auto mb-8 px-4 sm:px-0">
@@ -20,7 +26,7 @@
               class="w-full px-3 py-2 bg-[#1e1f22] border border-[#3f4147] rounded text-[#f2f3f5] placeholder-[#87898c] focus:outline-none focus:border-[#5865f2] transition-colors text-sm sm:text-base"
               @keyup.enter="searchUser">
           </div>
-          <button :disabled="loading || !userId.trim()"
+          <button :disabled="loading || !userId.trim() || securityStatus.isBlocked"
             class="w-full bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-[#4f545c] text-white font-medium py-2 px-4 rounded transition-colors disabled:cursor-not-allowed text-sm sm:text-base"
             @click="searchUser">
             <span v-if="loading" class="flex items-center justify-center">
@@ -32,8 +38,14 @@
               </svg>
               Searching...
             </span>
+            <span v-else-if="securityStatus.isBlocked">Blocked</span>
             <span v-else>Search User</span>
           </button>
+          
+          <div v-if="securityStatus.requestCount > 5" class="mt-3 p-3 bg-yellow-600 rounded text-white text-sm text-center">
+            ⚠️ You have made {{ securityStatus.requestCount }} requests recently. 
+            <span v-if="securityStatus.requestCount > 8">Captcha verification may be required soon.</span>
+          </div>
         </div>
       </div>
 
@@ -45,37 +57,47 @@
         </div>
       </div>
 
-      <!-- Captcha Modal -->
+      <!-- Enhanced hCaptcha Modal -->
       <div v-if="showCaptcha" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-[#2b2d31] rounded-lg p-4 sm:p-6 max-w-md w-full mx-4 border border-[#3f4147]">
+        <div class="bg-[#2b2d31] rounded-lg p-4 sm:p-6 max-w-lg w-full mx-4 border border-[#3f4147]">
           <div class="text-center mb-6">
-            <div
-              class="w-12 h-12 sm:w-16 sm:h-16 bg-[#5865f2] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-[#5865f2] rounded-full flex items-center justify-center mx-auto mb-4">
               <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <h3 class="text-[#f2f3f5] text-base sm:text-lg font-semibold mb-2">
-              I'm Not a Robot Verification
+              Security Verification Required
             </h3>
-            <p class="text-[#b5bac1] text-xs sm:text-sm">
-              Click the button below to continue
+            <p class="text-[#b5bac1] text-xs sm:text-sm mb-4">
+              Please complete the captcha verification to continue
             </p>
+            <div v-if="captchaError" class="mb-4 p-3 bg-red-600 rounded text-white text-sm">
+              {{ captchaError }}
+            </div>
+          </div>
+
+          <div class="flex justify-center mb-6">
+            <vue-hcaptcha
+              ref="hcaptcha"
+              :sitekey="hcaptchaSiteKey"
+              :theme="'dark'"
+              @verify="onCaptchaVerify"
+              @error="onCaptchaError"
+              @expired="onCaptchaExpired"
+            />
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3">
             <button :disabled="captchaLoading"
               class="flex-1 bg-[#4f545c] hover:bg-[#5d6269] disabled:bg-[#3f4147] text-white font-medium py-2 px-4 rounded transition-colors disabled:cursor-not-allowed text-sm sm:text-base"
-              @click="
-                showCaptcha = false;
-              userCaptchaAnswer = '';
-              ">
+              @click="closeCaptchaModal">
               Cancel
             </button>
-            <button :disabled="captchaLoading"
+            <button :disabled="captchaLoading || !captchaToken"
               class="flex-1 bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-[#4f545c] text-white font-medium py-2 px-4 rounded transition-colors disabled:cursor-not-allowed text-sm sm:text-base"
-              @click="verifyCaptcha">
+              @click="submitCaptcha">
               <span v-if="captchaLoading" class="flex items-center justify-center">
                 <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                   viewBox="0 0 24 24">
@@ -83,9 +105,9 @@
                   <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Verifying you're not a robot...
+                Verifying...
               </span>
-              <span v-else>I'm Not a Robot</span>
+              <span v-else>Verify & Continue</span>
             </button>
           </div>
         </div>
@@ -464,31 +486,118 @@
 </template>
 
 <script setup>
+import VueHcaptcha from '@hcaptcha/vue-hcaptcha'
+
 const userId = ref('')
 const user = ref(null)
 const loading = ref(false)
 const error = ref('')
 const showCaptcha = ref(false)
 const captchaLoading = ref(false)
-const captchaVerified = ref(false)
+const captchaToken = ref('')
+const captchaError = ref('')
+const hcaptcha = ref(null)
 
-const verifyCaptcha = async () => {
-  captchaLoading.value = true
+const hcaptchaSiteKey = process.env.NUXT_PUBLIC_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001'
 
-  await new Promise(resolve => setTimeout(resolve, 2000))
+const securityStatus = ref({
+  isBlocked: false,
+  blockTimeRemaining: 0,
+  requestCount: 0,
+  lastRequestTime: 0
+})
 
-  captchaVerified.value = true
+const updateSecurityStatus = () => {
+  const now = Date.now()
+  const requests = JSON.parse(localStorage.getItem('requestHistory') || '[]')
+  const recentRequests = requests.filter(time => now - time < 300000)
+  
+  securityStatus.value.requestCount = recentRequests.length
+  securityStatus.value.lastRequestTime = recentRequests[recentRequests.length - 1] || 0
+  
+  const blockUntil = localStorage.getItem('blockedUntil')
+  if (blockUntil && now < parseInt(blockUntil)) {
+    securityStatus.value.isBlocked = true
+    securityStatus.value.blockTimeRemaining = parseInt(blockUntil) - now
+  } else {
+    securityStatus.value.isBlocked = false
+    securityStatus.value.blockTimeRemaining = 0
+    localStorage.removeItem('blockedUntil')
+  }
+}
+
+const addRequestToHistory = () => {
+  const now = Date.now()
+  const requests = JSON.parse(localStorage.getItem('requestHistory') || '[]')
+  requests.push(now)
+  
+  const recentRequests = requests.filter(time => now - time < 300000)
+  localStorage.setItem('requestHistory', JSON.stringify(recentRequests))
+  
+  updateSecurityStatus()
+}
+
+const onCaptchaVerify = (token) => {
+  captchaToken.value = token
+  captchaError.value = ''
+}
+
+const onCaptchaError = (error) => {
+  captchaError.value = 'Captcha verification failed. Please try again.'
+  captchaToken.value = ''
+}
+
+const onCaptchaExpired = () => {
+  captchaToken.value = ''
+  captchaError.value = 'Captcha expired. Please verify again.'
+}
+
+const closeCaptchaModal = () => {
   showCaptcha.value = false
-  await performSearch()
+  captchaToken.value = ''
+  captchaError.value = ''
+  if (hcaptcha.value) {
+    hcaptcha.value.reset()
+  }
+}
 
-  captchaLoading.value = false
+const submitCaptcha = async () => {
+  if (!captchaToken.value) {
+    captchaError.value = 'Please complete the captcha verification.'
+    return
+  }
+
+  captchaLoading.value = true
+  captchaError.value = ''
+
+  try {
+    const response = await $fetch('/api/verify-captcha', {
+      method: 'POST',
+      body: {
+        token: captchaToken.value,
+        userId: userId.value
+      }
+    })
+
+    if (response.success) {
+      showCaptcha.value = false
+      await performSearch()
+    } else {
+      captchaError.value = 'Captcha verification failed. Please try again.'
+    }
+  } catch (err) {
+    captchaError.value = err.data?.message || 'Captcha verification failed. Please try again.'
+  } finally {
+    captchaLoading.value = false
+  }
 }
 
 const searchUser = async () => {
   if (!userId.value.trim()) return
+  if (securityStatus.value.isBlocked) return
 
-  if (!captchaVerified.value) {
-    showCaptcha.value = true
+  if (!/^\d{17,19}$/.test(userId.value)) {
+    error.value = 'Please enter a valid Discord user ID (17-19 digits).'
     return
   }
 
@@ -501,26 +610,40 @@ const performSearch = async () => {
   user.value = null
 
   try {
+    addRequestToHistory()
+    
     const response = await $fetch(`/api/discord/${userId.value}`)
     user.value = response
-    captchaVerified.value = false
-  }
-  catch (err) {
+  } catch (err) {
     if (err.status === 404 || err.statusCode === 404) {
       error.value = 'User not found. Please enter a valid Discord ID.'
-    }
-    else if (err.status === 401 || err.statusCode === 401) {
+    } else if (err.status === 401 || err.statusCode === 401) {
       error.value = 'Invalid API key. Please check your bot token.'
-    }
-    else {
+    } else if (err.status === 429 || err.statusCode === 429) {
+      if (err.data?.requiresCaptcha) {
+        showCaptcha.value = true
+        error.value = ''
+      } else {
+        error.value = 'Rate limit exceeded. Please wait before trying again.'
+        const blockUntil = Date.now() + 300000
+        localStorage.setItem('blockedUntil', blockUntil.toString())
+        updateSecurityStatus()
+      }
+    } else {
       error.value = 'An error occurred. Please try again.'
     }
-    captchaVerified.value = false
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }
+
+onMounted(() => {
+  updateSecurityStatus()
+  
+  setInterval(() => {
+    updateSecurityStatus()
+  }, 5000)
+})
 
 const getAvatarUrl = (userId, avatarHash) => {
   if (!avatarHash) {
@@ -717,24 +840,49 @@ const getActivityTypeText = (type) => {
 }
 
 const formatActivityTime = (timestamps) => {
-  if (!timestamps || !timestamps.start) return null
-  const start = new Date(timestamps.start)
-  const now = new Date()
-  const diff = now - start
-  const totalMinutes = Math.floor(diff / 60000)
-
-  if (totalMinutes < 1) {
-    const seconds = Math.floor(diff / 1000)
-    return seconds > 0 ? `${seconds}s` : '0s'
+  if (!timestamps) return null
+  
+  if (timestamps.start && timestamps.end) {
+    const start = new Date(timestamps.start)
+    const end = new Date(timestamps.end)
+    const diff = end - start
+    const totalMinutes = Math.floor(diff / 60000)
+    
+    if (totalMinutes < 1) {
+      const seconds = Math.floor(diff / 1000)
+      return seconds > 0 ? `${seconds}s` : '0s'
+    }
+    
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
+    return `${totalMinutes}m`
   }
+  
+  if (timestamps.start) {
+    const start = new Date(timestamps.start)
+    const now = new Date()
+    const diff = now - start
+    const totalMinutes = Math.floor(diff / 60000)
 
-  const hours = Math.floor(totalMinutes / 60)
-  const minutes = totalMinutes % 60
+    if (totalMinutes < 1) {
+      const seconds = Math.floor(diff / 1000)
+      return seconds > 0 ? `${seconds}s` : '0s'
+    }
 
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
+    return `${totalMinutes}m`
   }
-  return `${totalMinutes}m`
+  
+  return null
 }
 </script>
 
