@@ -13,8 +13,7 @@ if (process.env.REDIS_URL) {
 
 const ipWhitelist = new Set([
   '127.0.0.1',
-  '::1',
-  'localhost'
+  '::1'
 ])
 
 const suspiciousIPs = new Map()
