@@ -564,6 +564,7 @@ const loadHcaptcha = () => {
 }
 
 const renderHcaptcha = async () => {
+  console.log('renderHcaptcha called, sitekey:', hcaptchaSiteKey)
   await loadHcaptcha()
   
   if (hcaptchaWidgetId.value !== null) {
@@ -571,6 +572,7 @@ const renderHcaptcha = async () => {
     return
   }
   
+  console.log('Rendering hcaptcha widget')
   hcaptchaWidgetId.value = window.hcaptcha.render(hcaptchaContainer.value, {
     sitekey: hcaptchaSiteKey,
     theme: 'dark',
@@ -648,15 +650,9 @@ const performSearch = async () => {
     } else if (err.status === 401 || err.statusCode === 401) {
       error.value = 'Invalid API key. Please check your bot token.'
     } else if (err.status === 429 || err.statusCode === 429) {
-      if (err.statusMessage?.includes('Captcha verification required') || err.data?.requiresCaptcha) {
-        showCaptcha.value = true
-        error.value = ''
-      } else {
-        error.value = 'Rate limit exceeded. Please wait before trying again.'
-        const blockUntil = Date.now() + 300000
-        localStorage.setItem('blockedUntil', blockUntil.toString())
-        updateSecurityStatus()
-      }
+      console.log('429 error detected, showing captcha modal')
+      showCaptcha.value = true
+      error.value = ''
     } else {
       error.value = 'An error occurred. Please try again.'
     }
@@ -666,6 +662,7 @@ const performSearch = async () => {
 }
 
 watch(showCaptcha, async (newValue) => {
+  console.log('showCaptcha changed to:', newValue)
   if (newValue) {
     await nextTick()
     await renderHcaptcha()
