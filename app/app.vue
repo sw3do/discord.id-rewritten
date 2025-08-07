@@ -642,12 +642,13 @@ const performSearch = async () => {
     const response = await $fetch(`/api/discord/${userId.value}`)
     user.value = response
   } catch (err) {
+    console.log(err);
     if (err.status === 404 || err.statusCode === 404) {
       error.value = 'User not found. Please enter a valid Discord ID.'
     } else if (err.status === 401 || err.statusCode === 401) {
       error.value = 'Invalid API key. Please check your bot token.'
     } else if (err.status === 429 || err.statusCode === 429) {
-      if (err.statusMessage?.includes('Captcha verification required')) {
+      if (err.statusMessage?.includes('Captcha verification required') || err.data?.requiresCaptcha) {
         showCaptcha.value = true
         error.value = ''
       } else {
