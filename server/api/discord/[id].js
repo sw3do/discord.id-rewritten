@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
   const userId = getRouterParam(event, 'id')
   const ip = getClientIP(event)
   const userAgent = getHeader(event, 'user-agent') || 'unknown'
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const requiresCaptcha = await checkIfCaptchaRequired(event, ip, userAgent)
+  const requiresCaptcha = await checkIfCaptchaRequired(event, ip, userAgent, config)
   if (requiresCaptcha) {
     throw createError({
       statusCode: 429,
@@ -26,14 +27,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  await logRequest(ip, userAgent, userId)
+  await logRequest(ip, userAgent, userId, config)
 
   try {
     const discordResponse = await $fetch(
       `https://discord.com/api/v10/users/${userId}`,
       {
         headers: {
-          Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+          Authorization: `Bot ${config.discordBotToken}`,
         },
       },
     )
@@ -56,11 +57,11 @@ export default defineEventHandler(async (event) => {
       lanyard: lanyardData,
     }
 
-    await logSuccessfulRequest(ip, userId)
+    await logSuccessfulRequest(ip, userId, config)
     return result
   }
   catch (error) {
-    await logFailedRequest(ip, userId, error.status || 500)
+    await logFailedRequest(ip, userId, error.status || 500, config)
     if (error.status === 404) {
       throw createError({
         statusCode: 404,
@@ -90,14 +91,14 @@ function getClientIP(event) {
   return cfIP || realIP || (forwarded ? forwarded.split(',')[0].trim() : '127.0.0.1')
 }
 
-async function checkIfCaptchaRequired(event, ip, userAgent) {
+async function checkIfCaptchaRequired(event, ip, userAgent, config) {
   const captchaToken = getCookie(event, 'captcha-verified')
   
   if (captchaToken) {
-    if (process.env.REDIS_URL) {
+    if (config.redisUrl) {
       try {
         const { createClient } = await import('redis')
-        const redisClient = createClient({ url: process.env.REDIS_URL })
+        const redisClient = createClient({ url: config.redisUrl })
         await redisClient.connect()
         
         const verified = await redisClient.get(`captcha:${captchaToken}`)
@@ -115,10 +116,10 @@ async function checkIfCaptchaRequired(event, ip, userAgent) {
     }
   }
 
-  if (process.env.REDIS_URL) {
+  if (config.redisUrl) {
     try {
       const { createClient } = await import('redis')
-      const redisClient = createClient({ url: process.env.REDIS_URL })
+      const redisClient = createClient({ url: config.redisUrl })
       await redisClient.connect()
       
       const requestCount = await redisClient.get(`requests:${ip}:${Math.floor(Date.now() / 300000)}`)
@@ -145,12 +146,12 @@ async function checkIfCaptchaRequired(event, ip, userAgent) {
   return false
 }
 
-async function logRequest(ip, userAgent, userId) {
-  if (!process.env.REDIS_URL) return
+async function logRequest(ip, userAgent, userId, config) {
+  if (!config.redisUrl) return
   
   try {
     const { createClient } = await import('redis')
-    const redisClient = createClient({ url: process.env.REDIS_URL })
+    const redisClient = createClient({ url: config.redisUrl })
     await redisClient.connect()
     
     const timeWindow = Math.floor(Date.now() / 300000)
@@ -174,12 +175,12 @@ async function logRequest(ip, userAgent, userId) {
   }
 }
 
-async function logSuccessfulRequest(ip, userId) {
-  if (!process.env.REDIS_URL) return
+async function logSuccessfulRequest(ip, userId, config) {
+  if (!config.redisUrl) return
   
   try {
     const { createClient } = await import('redis')
-    const redisClient = createClient({ url: process.env.REDIS_URL })
+    const redisClient = createClient({ url: config.redisUrl })
     await redisClient.connect()
     
     await redisClient.lPush(`logs:success`, JSON.stringify({
@@ -196,12 +197,12 @@ async function logSuccessfulRequest(ip, userId) {
   }
 }
 
-async function logFailedRequest(ip, userId, statusCode) {
-  if (!process.env.REDIS_URL) return
+async function logFailedRequest(ip, userId, statusCode, config) {
+  if (!config.redisUrl) return
   
   try {
     const { createClient } = await import('redis')
-    const redisClient = createClient({ url: process.env.REDIS_URL })
+    const redisClient = createClient({ url: config.redisUrl })
     await redisClient.connect()
     
     await redisClient.lPush(`logs:failed`, JSON.stringify({

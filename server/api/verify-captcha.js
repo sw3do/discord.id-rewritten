@@ -16,7 +16,9 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (!process.env.HCAPTCHA_SECRET_KEY) {
+  const config = useRuntimeConfig()
+  
+  if (!config.hcaptchaSecretKey) {
     throw createError({
       statusCode: 500,
       statusMessage: 'hCaptcha not configured'
@@ -30,7 +32,7 @@ export default defineEventHandler(async (event) => {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
       body: new URLSearchParams({
-        secret: process.env.HCAPTCHA_SECRET_KEY,
+        secret: config.hcaptchaSecretKey,
         response: token,
         remoteip: getClientIP(event)
       })
@@ -46,10 +48,10 @@ export default defineEventHandler(async (event) => {
     const sessionToken = generateSecureToken()
     const expiresAt = Date.now() + (10 * 60 * 1000)
     
-    if (process.env.REDIS_URL) {
+    if (config.redisUrl) {
       try {
         const { createClient } = await import('redis')
-        const redisClient = createClient({ url: process.env.REDIS_URL })
+        const redisClient = createClient({ url: config.redisUrl })
         await redisClient.connect()
         
         await redisClient.setEx(
@@ -71,7 +73,7 @@ export default defineEventHandler(async (event) => {
 
     setCookie(event, 'captcha-verified', sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: config.nodeEnv === 'production',
       sameSite: 'strict',
       maxAge: 600
     })

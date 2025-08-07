@@ -3,6 +3,15 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  runtimeConfig: {
+    discordBotToken: process.env.DISCORD_BOT_TOKEN,
+    hcaptchaSecretKey: process.env.HCAPTCHA_SECRET_KEY,
+    redisUrl: process.env.REDIS_URL,
+    nodeEnv: process.env.NODE_ENV,
+    public: {
+      hcaptchaSiteKey: process.env.NUXT_PUBLIC_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001'
+    }
+  },
   app: {
     head: {
       title: 'DiscordID - Lookup',

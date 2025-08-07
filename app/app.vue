@@ -492,7 +492,8 @@ const captchaError = ref('')
 const hcaptchaContainer = ref(null)
 const hcaptchaWidgetId = ref(null)
 
-const hcaptchaSiteKey = process.env.NUXT_PUBLIC_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001'
+const config = useRuntimeConfig()
+const hcaptchaSiteKey = config.public.hcaptchaSiteKey
 
 const securityStatus = ref({
   isBlocked: false,
@@ -642,7 +643,6 @@ const performSearch = async () => {
     const response = await $fetch(`/api/discord/${userId.value}`)
     user.value = response
   } catch (err) {
-    console.log(err);
     if (err.status === 404 || err.statusCode === 404) {
       error.value = 'User not found. Please enter a valid Discord ID.'
     } else if (err.status === 401 || err.statusCode === 401) {
