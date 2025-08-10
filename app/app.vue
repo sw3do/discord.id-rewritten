@@ -148,7 +148,7 @@
                 <span class="break-all">{{
                   user.display_name || user.global_name || user.username
                   }}</span>
-                <span v-if="user.clan"
+                <span v-if="user.clan && user.clan.tag"
                   class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-1 rounded font-medium">
                   <img v-if="user.clan.badge" :src="getClanBadgeUrl(
                     user.clan.identity_guild_id,
