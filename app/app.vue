@@ -200,7 +200,7 @@
                   STATUS
                 </div>
                 <div class="flex items-center gap-2">
-                  <div class="w-3 h-3 rounded-full flex-shrink-0" :style="{
+                  <div class="w-3 h-3 rounded-full shrink-0" :style="{
                     backgroundColor: getStatusColor(
                       user.lanyard.discord_status,
                     ),
@@ -240,7 +240,7 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <NuxtImg v-if="user.lanyard.spotify.album_art_url" :src="user.lanyard.spotify.album_art_url"
-                    :alt="user.lanyard.spotify.album" class="w-12 h-12 sm:w-16 sm:h-16 rounded flex-shrink-0" />
+                    :alt="user.lanyard.spotify.album" class="w-12 h-12 sm:w-16 sm:h-16 rounded shrink-0" />
                   <div class="min-w-0 flex-1">
                     <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-words">
                       {{ user.lanyard.spotify.song }}
@@ -269,7 +269,7 @@
                   <div v-for="activity in user.lanyard.activities.filter(
                     (activity) => activity.type === 4,
                   )" :key="activity.id || activity.name" class="flex items-center gap-2">
-                    <div v-if="activity.emoji" class="flex-shrink-0">
+                    <div v-if="activity.emoji" class="shrink-0">
                       <NuxtImg v-if="activity.emoji.id"
                         :src="`https://cdn.discordapp.com/emojis/${activity.emoji.id}.${activity.emoji.animated ? 'gif' : 'png'}?size=32`"
                         :alt="activity.emoji.name" class="w-4 h-4" />
@@ -303,7 +303,7 @@
                     <NuxtImg v-if="activity.assets && activity.assets.large_image" :src="activity.assets.large_image.startsWith('mp:')
                       ? `https://media.discordapp.net/${activity.assets.large_image.slice(3)}`
                       : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`
-                      " :alt="activity.name" class="w-10 h-10 sm:w-12 sm:h-12 rounded flex-shrink-0" />
+                      " :alt="activity.name" class="w-10 h-10 sm:w-12 sm:h-12 rounded shrink-0" />
                     <div class="min-w-0 flex-1">
                       <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-words">
                         {{ getActivityTypeText(activity.type) }}
@@ -342,7 +342,7 @@
                     user.primary_guild.identity_guild_id,
                     user.primary_guild.badge,
                   )
-                    " :alt="user.primary_guild.tag" class="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                    " :alt="user.primary_guild.tag" class="w-5 h-5 sm:w-6 sm:h-6 shrink-0" />
                   <div class="min-w-0 flex-1">
                     <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-all">
                       {{ user.primary_guild.tag }}
@@ -375,13 +375,13 @@
                 </div>
                 <div class="space-y-1 text-xs">
                   <div class="flex justify-between items-start gap-2">
-                    <span class="text-[#b5bac1] flex-shrink-0">ID:</span>
+                    <span class="text-[#b5bac1] shrink-0">ID:</span>
                     <span class="text-[#f2f3f5] font-mono break-all text-right">{{ user.id }}</span>
                   </div>
                   <div v-if="user.accent_color" class="flex justify-between items-start gap-2">
-                    <span class="text-[#b5bac1] flex-shrink-0">Accent Color:</span>
+                    <span class="text-[#b5bac1] shrink-0">Accent Color:</span>
                     <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-3 h-3 rounded-full border border-[#3f4147] flex-shrink-0" :style="{
+                      <div class="w-3 h-3 rounded-full border border-[#3f4147] shrink-0" :style="{
                         backgroundColor: `#${user.accent_color.toString(16).padStart(6, '0')}`,
                       }" />
                       <span class="text-[#f2f3f5] font-mono text-right break-all">#{{
@@ -393,24 +393,24 @@
                     </div>
                   </div>
                   <div v-if="user.banner_color" class="flex justify-between items-start gap-2">
-                    <span class="text-[#b5bac1] flex-shrink-0">Banner Color:</span>
+                    <span class="text-[#b5bac1] shrink-0">Banner Color:</span>
                     <div class="flex items-center gap-2 min-w-0">
-                      <div class="w-3 h-3 rounded-full border border-[#3f4147] flex-shrink-0"
+                      <div class="w-3 h-3 rounded-full border border-[#3f4147] shrink-0"
                         :style="{ backgroundColor: user.banner_color }" />
                       <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.banner_color.toUpperCase()
                         }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-start gap-2">
-                    <span class="text-[#b5bac1] flex-shrink-0">Public Flags:</span>
+                    <span class="text-[#b5bac1] shrink-0">Public Flags:</span>
                     <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.public_flags }}</span>
                   </div>
                   <div class="flex justify-between items-start gap-2">
-                    <span class="text-[#b5bac1] flex-shrink-0">Flags:</span>
+                    <span class="text-[#b5bac1] shrink-0">Flags:</span>
                     <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.flags }}</span>
                   </div>
                   <div class="flex justify-between items-start gap-2">
-                    <span class="text-[#b5bac1] flex-shrink-0">Account Created:</span>
+                    <span class="text-[#b5bac1] shrink-0">Account Created:</span>
                     <span class="text-[#f2f3f5] text-xs text-right break-all">{{
                       formatDate(getAccountCreationDate(user.id))
                       }}</span>
@@ -426,7 +426,7 @@
                   class="absolute inset-0 w-full h-full object-cover z-0" />
                 <div class="relative p-2 sm:p-4 z-10">
                   <div class="flex items-center gap-2 sm:gap-3">
-                    <div class="relative flex-shrink-0">
+                    <div class="relative shrink-0">
                       <NuxtImg :src="getAvatarUrl(user.id, user.avatar)" :alt="user.username"
                         class="w-8 h-8 sm:w-12 sm:h-12 rounded-full" />
                       <div v-if="user.avatar_decoration_data" class="absolute inset-0 w-8 h-8 sm:w-12 sm:h-12">
