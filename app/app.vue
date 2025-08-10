@@ -136,7 +136,7 @@
                 class="text-[#f2f3f5] font-semibold text-base sm:text-lg leading-tight flex flex-wrap items-center gap-2">
                 <span class="break-all">{{
                   user.display_name || user.global_name || user.username
-                  }}</span>
+                }}</span>
                 <span v-if="user.clan && user.clan.tag"
                   class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-1 rounded font-medium">
                   <NuxtImg v-if="user.clan.badge" :src="getClanBadgeUrl(
@@ -194,7 +194,7 @@
                   }" />
                   <span class="text-[#b5bac1] text-xs sm:text-sm">{{
                     getStatusText(user.lanyard.discord_status)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div v-if="
                   user.lanyard.active_on_discord_desktop
@@ -382,7 +382,7 @@
                       <div class="w-3 h-3 rounded-full border border-[#3f4147] shrink-0"
                         :style="{ backgroundColor: user.banner_color }" />
                       <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.banner_color.toUpperCase()
-                        }}</span>
+                      }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-start gap-2">
@@ -397,7 +397,7 @@
                     <span class="text-[#b5bac1] shrink-0">Account Created:</span>
                     <span class="text-[#f2f3f5] text-xs text-right break-all">{{
                       formatDate(getAccountCreationDate(user.id))
-                      }}</span>
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -425,7 +425,7 @@
                         class="text-white font-medium text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 drop-shadow-lg">
                         <span class="break-all">{{
                           user.display_name || user.global_name || user.username
-                          }}</span>
+                        }}</span>
                         <span v-if="user.clan && user.clan.tag"
                           class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-0.5 rounded font-medium">
                           <NuxtImg v-if="user.clan.badge" :src="getClanBadgeUrl(
