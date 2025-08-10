@@ -41,9 +41,10 @@
             <span v-else-if="securityStatus.isBlocked">Blocked</span>
             <span v-else>Search User</span>
           </button>
-          
-          <div v-if="securityStatus.requestCount > 5" class="mt-3 p-3 bg-yellow-600 rounded text-white text-sm text-center">
-            ⚠️ You have made {{ securityStatus.requestCount }} requests recently. 
+
+          <div v-if="securityStatus.requestCount > 5"
+            class="mt-3 p-3 bg-yellow-600 rounded text-white text-sm text-center">
+            ⚠️ You have made {{ securityStatus.requestCount }} requests recently.
             <span v-if="securityStatus.requestCount > 8">Captcha verification may be required soon.</span>
           </div>
         </div>
@@ -61,7 +62,8 @@
       <div v-if="showCaptcha" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-[#2b2d31] rounded-lg p-4 sm:p-6 max-w-lg w-full mx-4 border border-[#3f4147]">
           <div class="text-center mb-6">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-[#5865f2] rounded-full flex items-center justify-center mx-auto mb-4">
+            <div
+              class="w-12 h-12 sm:w-16 sm:h-16 bg-[#5865f2] rounded-full flex items-center justify-center mx-auto mb-4">
               <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -147,7 +149,7 @@
                 class="text-[#f2f3f5] font-semibold text-base sm:text-lg leading-tight flex flex-wrap items-center gap-2">
                 <span class="break-all">{{
                   user.display_name || user.global_name || user.username
-                  }}</span>
+                }}</span>
                 <span v-if="user.clan && user.clan.tag"
                   class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-1 rounded font-medium">
                   <img v-if="user.clan.badge" :src="getClanBadgeUrl(
@@ -205,7 +207,7 @@
                   }" />
                   <span class="text-[#b5bac1] text-xs sm:text-sm">{{
                     getStatusText(user.lanyard.discord_status)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div v-if="
                   user.lanyard.active_on_discord_desktop
@@ -396,7 +398,7 @@
                       <div class="w-3 h-3 rounded-full border border-[#3f4147] flex-shrink-0"
                         :style="{ backgroundColor: user.banner_color }" />
                       <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.banner_color.toUpperCase()
-                        }}</span>
+                      }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-start gap-2">
@@ -411,7 +413,7 @@
                     <span class="text-[#b5bac1] flex-shrink-0">Account Created:</span>
                     <span class="text-[#f2f3f5] text-xs text-right break-all">{{
                       formatDate(getAccountCreationDate(user.id))
-                      }}</span>
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -439,8 +441,8 @@
                         class="text-white font-medium text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 drop-shadow-lg">
                         <span class="break-all">{{
                           user.display_name || user.global_name || user.username
-                          }}</span>
-                        <span v-if="user.clan"
+                        }}</span>
+                        <span v-if="user.clan && user.clan.tag"
                           class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-0.5 rounded font-medium">
                           <img v-if="user.clan.badge" :src="getClanBadgeUrl(
                             user.clan.identity_guild_id,
@@ -506,10 +508,10 @@ const updateSecurityStatus = () => {
   const now = Date.now()
   const requests = JSON.parse(localStorage.getItem('requestHistory') || '[]')
   const recentRequests = requests.filter(time => now - time < 300000)
-  
+
   securityStatus.value.requestCount = recentRequests.length
   securityStatus.value.lastRequestTime = recentRequests[recentRequests.length - 1] || 0
-  
+
   const blockUntil = localStorage.getItem('blockedUntil')
   if (blockUntil && now < parseInt(blockUntil)) {
     securityStatus.value.isBlocked = true
@@ -525,10 +527,10 @@ const addRequestToHistory = () => {
   const now = Date.now()
   const requests = JSON.parse(localStorage.getItem('requestHistory') || '[]')
   requests.push(now)
-  
+
   const recentRequests = requests.filter(time => now - time < 300000)
   localStorage.setItem('requestHistory', JSON.stringify(recentRequests))
-  
+
   updateSecurityStatus()
 }
 
@@ -553,7 +555,7 @@ const loadHcaptcha = () => {
       resolve()
       return
     }
-    
+
     const script = document.createElement('script')
     script.src = 'https://js.hcaptcha.com/1/api.js'
     script.async = true
@@ -566,12 +568,12 @@ const loadHcaptcha = () => {
 const renderHcaptcha = async () => {
   console.log('renderHcaptcha called, sitekey:', hcaptchaSiteKey)
   await loadHcaptcha()
-  
+
   if (hcaptchaWidgetId.value !== null) {
     window.hcaptcha.reset(hcaptchaWidgetId.value)
     return
   }
-  
+
   console.log('Rendering hcaptcha widget')
   hcaptchaWidgetId.value = window.hcaptcha.render(hcaptchaContainer.value, {
     sitekey: hcaptchaSiteKey,
@@ -641,7 +643,7 @@ const performSearch = async () => {
 
   try {
     addRequestToHistory()
-    
+
     const response = await $fetch(`/api/discord/${userId.value}`)
     user.value = response
   } catch (err) {
@@ -671,7 +673,7 @@ watch(showCaptcha, async (newValue) => {
 
 onMounted(() => {
   updateSecurityStatus()
-  
+
   setInterval(() => {
     updateSecurityStatus()
   }, 1000)
@@ -873,27 +875,27 @@ const getActivityTypeText = (type) => {
 
 const formatActivityTime = (timestamps) => {
   if (!timestamps) return null
-  
+
   if (timestamps.start && timestamps.end) {
     const start = new Date(timestamps.start)
     const end = new Date(timestamps.end)
     const diff = end - start
     const totalMinutes = Math.floor(diff / 60000)
-    
+
     if (totalMinutes < 1) {
       const seconds = Math.floor(diff / 1000)
       return seconds > 0 ? `${seconds}s` : '0s'
     }
-    
+
     const hours = Math.floor(totalMinutes / 60)
     const minutes = totalMinutes % 60
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`
     }
     return `${totalMinutes}m`
   }
-  
+
   if (timestamps.start) {
     const start = new Date(timestamps.start)
     const now = new Date()
@@ -913,7 +915,7 @@ const formatActivityTime = (timestamps) => {
     }
     return `${totalMinutes}m`
   }
-  
+
   return null
 }
 </script>
