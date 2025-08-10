@@ -125,13 +125,13 @@
             <!-- Avatar -->
             <div class="relative -mt-6 sm:-mt-8 mb-3">
               <div class="relative inline-block">
-                <img :src="getAvatarUrl(user.id, user.avatar)" :alt="user.username"
+                <NuxtImg :src="getAvatarUrl(user.id, user.avatar)" :alt="user.username"
                   class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 bg-[#36393f]"
-                  :style="getAvatarBorderStyle(user)">
+                  :style="getAvatarBorderStyle(user)" />
                 <!-- Avatar Decoration -->
                 <div v-if="user.avatar_decoration_data" class="absolute inset-0 w-12 h-12 sm:w-16 sm:h-16">
-                  <img :src="getAvatarDecorationUrl(user.avatar_decoration_data.asset)
-                    " :alt="'Avatar decoration'" class="w-full h-full">
+                  <NuxtImg :src="getAvatarDecorationUrl(user.avatar_decoration_data.asset)
+                    " :alt="'Avatar decoration'" class="w-full h-full" />
                 </div>
                 <!-- Online Status -->
                 <div v-if="user.lanyard"
@@ -149,14 +149,14 @@
                 class="text-[#f2f3f5] font-semibold text-base sm:text-lg leading-tight flex flex-wrap items-center gap-2">
                 <span class="break-all">{{
                   user.display_name || user.global_name || user.username
-                }}</span>
+                  }}</span>
                 <span v-if="user.clan && user.clan.tag"
                   class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-1 rounded font-medium">
-                  <img v-if="user.clan.badge" :src="getClanBadgeUrl(
+                  <NuxtImg v-if="user.clan.badge" :src="getClanBadgeUrl(
                     user.clan.identity_guild_id,
                     user.clan.badge,
                   )
-                    " :alt="user.clan.tag" class="w-3 h-3">
+                    " :alt="user.clan.tag" class="w-3 h-3" />
                   {{ user.clan.tag }}
                 </span>
               </h2>
@@ -175,8 +175,8 @@
             <!-- Badges -->
             <div v-if="getUserBadges(user.public_flags, user.bot).length > 0" class="mb-4">
               <div class="flex flex-wrap gap-1 sm:gap-2">
-                <img v-for="badge in getUserBadges(user.public_flags, user.bot)" :key="badge.name" :src="badge.icon"
-                  :alt="badge.name" :title="badge.name" class="w-4 h-4 sm:w-5 sm:h-5">
+                <NuxtImg v-for="badge in getUserBadges(user.public_flags, user.bot)" :key="badge.name" :src="badge.icon"
+                  :alt="badge.name" :title="badge.name" class="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
 
@@ -207,7 +207,7 @@
                   }" />
                   <span class="text-[#b5bac1] text-xs sm:text-sm">{{
                     getStatusText(user.lanyard.discord_status)
-                  }}</span>
+                    }}</span>
                 </div>
                 <div v-if="
                   user.lanyard.active_on_discord_desktop
@@ -239,8 +239,8 @@
                   LISTENING TO SPOTIFY
                 </div>
                 <div class="flex items-center gap-3">
-                  <img v-if="user.lanyard.spotify.album_art_url" :src="user.lanyard.spotify.album_art_url"
-                    :alt="user.lanyard.spotify.album" class="w-12 h-12 sm:w-16 sm:h-16 rounded flex-shrink-0">
+                  <NuxtImg v-if="user.lanyard.spotify.album_art_url" :src="user.lanyard.spotify.album_art_url"
+                    :alt="user.lanyard.spotify.album" class="w-12 h-12 sm:w-16 sm:h-16 rounded flex-shrink-0" />
                   <div class="min-w-0 flex-1">
                     <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-words">
                       {{ user.lanyard.spotify.song }}
@@ -270,9 +270,9 @@
                     (activity) => activity.type === 4,
                   )" :key="activity.id || activity.name" class="flex items-center gap-2">
                     <div v-if="activity.emoji" class="flex-shrink-0">
-                      <img v-if="activity.emoji.id"
+                      <NuxtImg v-if="activity.emoji.id"
                         :src="`https://cdn.discordapp.com/emojis/${activity.emoji.id}.${activity.emoji.animated ? 'gif' : 'png'}?size=32`"
-                        :alt="activity.emoji.name" class="w-4 h-4">
+                        :alt="activity.emoji.name" class="w-4 h-4" />
                       <span v-else class="text-sm">
                         {{ activity.emoji.name }}
                       </span>
@@ -300,10 +300,10 @@
                   <div v-for="activity in user.lanyard.activities.filter(
                     (activity) => activity.name !== 'Spotify' && activity.type !== 4,
                   )" :key="activity.id || activity.name" class="flex items-start gap-3">
-                    <img v-if="activity.assets && activity.assets.large_image" :src="activity.assets.large_image.startsWith('mp:')
+                    <NuxtImg v-if="activity.assets && activity.assets.large_image" :src="activity.assets.large_image.startsWith('mp:')
                       ? `https://media.discordapp.net/${activity.assets.large_image.slice(3)}`
                       : `https://cdn.discordapp.com/app-assets/${activity.application_id}/${activity.assets.large_image}.png`
-                      " :alt="activity.name" class="w-10 h-10 sm:w-12 sm:h-12 rounded flex-shrink-0">
+                      " :alt="activity.name" class="w-10 h-10 sm:w-12 sm:h-12 rounded flex-shrink-0" />
                     <div class="min-w-0 flex-1">
                       <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-words">
                         {{ getActivityTypeText(activity.type) }}
@@ -338,11 +338,11 @@
                   PRIMARY GUILD
                 </div>
                 <div class="flex items-center gap-2">
-                  <img v-if="user.primary_guild.badge" :src="getClanBadgeUrl(
+                  <NuxtImg v-if="user.primary_guild.badge" :src="getClanBadgeUrl(
                     user.primary_guild.identity_guild_id,
                     user.primary_guild.badge,
                   )
-                    " :alt="user.primary_guild.tag" class="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0">
+                    " :alt="user.primary_guild.tag" class="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
                   <div class="min-w-0 flex-1">
                     <div class="text-[#f2f3f5] text-xs sm:text-sm font-medium break-all">
                       {{ user.primary_guild.tag }}
@@ -398,7 +398,7 @@
                       <div class="w-3 h-3 rounded-full border border-[#3f4147] flex-shrink-0"
                         :style="{ backgroundColor: user.banner_color }" />
                       <span class="text-[#f2f3f5] font-mono text-right break-all">{{ user.banner_color.toUpperCase()
-                      }}</span>
+                        }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-start gap-2">
@@ -413,7 +413,7 @@
                     <span class="text-[#b5bac1] flex-shrink-0">Account Created:</span>
                     <span class="text-[#f2f3f5] text-xs text-right break-all">{{
                       formatDate(getAccountCreationDate(user.id))
-                    }}</span>
+                      }}</span>
                   </div>
                 </div>
               </div>
@@ -427,13 +427,13 @@
                 <div class="relative p-2 sm:p-4 z-10">
                   <div class="flex items-center gap-2 sm:gap-3">
                     <div class="relative flex-shrink-0">
-                      <img :src="getAvatarUrl(user.id, user.avatar)" :alt="user.username"
-                        class="w-8 h-8 sm:w-12 sm:h-12 rounded-full">
+                      <NuxtImg :src="getAvatarUrl(user.id, user.avatar)" :alt="user.username"
+                        class="w-8 h-8 sm:w-12 sm:h-12 rounded-full" />
                       <div v-if="user.avatar_decoration_data" class="absolute inset-0 w-8 h-8 sm:w-12 sm:h-12">
-                        <img :src="getAvatarDecorationUrl(
+                        <NuxtImg :src="getAvatarDecorationUrl(
                           user.avatar_decoration_data.asset,
                         )
-                          " :alt="'Avatar decoration'" class="w-full h-full">
+                          " :alt="'Avatar decoration'" class="w-full h-full" />
                       </div>
                     </div>
                     <div class="min-w-0 flex-1">
@@ -441,14 +441,14 @@
                         class="text-white font-medium text-xs sm:text-sm flex flex-wrap items-center gap-1 sm:gap-2 drop-shadow-lg">
                         <span class="break-all">{{
                           user.display_name || user.global_name || user.username
-                        }}</span>
+                          }}</span>
                         <span v-if="user.clan && user.clan.tag"
                           class="inline-flex items-center gap-1 bg-[#5865f2] text-white text-xs px-2 py-0.5 rounded font-medium">
-                          <img v-if="user.clan.badge" :src="getClanBadgeUrl(
+                          <NuxtImg v-if="user.clan.badge" :src="getClanBadgeUrl(
                             user.clan.identity_guild_id,
                             user.clan.badge,
                           )
-                            " :alt="user.clan.tag" class="w-3 h-3">
+                            " :alt="user.clan.tag" class="w-3 h-3" />
                           {{ user.clan.tag }}
                         </span>
                       </div>

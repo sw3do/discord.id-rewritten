@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/image": "^1.11.0",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
     "express-rate-limit": "^8.0.1",

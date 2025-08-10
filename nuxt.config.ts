@@ -3,6 +3,13 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  modules: ['@nuxt/image'],
+  image: {
+    domains: [
+      'cdn.discordapp.com',
+      'media.discordapp.net'
+    ]
+  },
   runtimeConfig: {
     discordBotToken: process.env.DISCORD_BOT_TOKEN,
     hcaptchaSecretKey: process.env.HCAPTCHA_SECRET_KEY,
